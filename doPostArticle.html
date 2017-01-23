@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>雲端範例系統</title>
+
+<script type="text/javascript" src="js/AJAX.js"></script>
+<script type="text/javascript" src="js/htmlLoader.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+
+<script>
+//var replyTo=0;
+
+var userInfo;
+
+//--------------------------------------------------------------------
+// 檢查是否已登入
+// 已登入則自動導向至 home.html
+//--------------------------------------------------------------------
+function checkLogin(){
+    AJAXGet("checkLogin", checkLoginHandler);
+}
+
+function checkLoginHandler(xhttp){
+     var data = JSON.parse(xhttp.responseText);
+     
+     if (data.success == "ok"){
+         userInfo = data.userInfo;
+         //loadUserInfo();
+     }
+     else {
+         alert("尚未登入!!!");
+         window.location.href = "index.html";   // 將網頁重導向至 index.html
+     }
+}
+
+//--------------------------------------------------------------------
+// 載入使用者資料
+//--------------------------------------------------------------------
+function loadUserInfo(){
+
+    if(userInfo) document.getElementById('uname').innerHTML = userInfo.uname;
+}
+
+
+//--------------------------------------------------------------------
+// 發文
+//--------------------------------------------------------------------
+function postArticleHandler(xhttp) {
+    console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        alert("發文成功");
+        window.location.href = "main.html";  // 將網頁重導向至 main.html
+    }else {
+        alert("發文失敗");        
+        
+        document.getElementById("title").value ="";
+        document.getElementById("content").value ="";
+        document.getElementById("title").focus();
+    }
+}
+
+function postArticle(){
+    
+    //20170123 tkli
+    //發現 用 encodeURI() 真的是有必要的，不然會因為有些符號而發生問題
+    var title = encodeURI(document.getElementById("title").value);
+    var postContent = encodeURI(document.getElementById("postContent").value);
+
+    var url = "doPostArticle" ;
+    var postData = "title=" + title + "&content=" + postContent;
+    
+    AJAXPost(url, postData, postArticleHandler);
+
+}   
+
+
+//--------------------------------------------------------------------
+// 初始化頁面
+//--------------------------------------------------------------------
+function initPage(){
+    checkLogin();
+    htmlLoader();
+}
+
+</script>
+
+</head>
+
+<body onload = "initPage();document.getElementById('title').focus();">
+
+<header load-html='header.html'></header>
+
+<section load-html='menu.html'></section>
+
+<section id='content' style='width:924px;position:relative;left:50%;margin-left:-462px;'>
+    <br/><br/><br/><br/>
+
+    
+    <h1>發文</h1>
+        
+    <!--<form action="20160331_loginverify.php" method="post"></form>-->
+    
+    <!--userid | pass | username  | age  | phone  -->
+    <p><button onclick="postArticle()">送出</button> </p>
+    
+    <table>
+        <tr>
+            <td>標題：</td>
+            <td><input name='title' id='title' style="width:824px"/></td>
+        </tr>
+        <tr>
+        <tr>
+            <td style="vertical-align: text-top;">內文：</td>
+            <td><textarea name="postContent"  id="postContent" style="left:0px;right:0px; height:500px; width:824px; vertical-align: text-top;" ></textarea></td>
+        </tr>
+    
+    </table>
+    
+    <p><button onclick="postArticle()">送出</button> </p>
+    <!--</form>-->
+
+    <br/><br/><br/><br/>
+
+</section>
+
+
+<footer load-html='footer.html'></footer>
+
+</body>
+</html>

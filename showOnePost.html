@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>雲端範例系統</title>
+
+<script type="text/javascript" src="js/AJAX.js"></script>
+<script type="text/javascript" src="js/htmlLoader.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+
+<script>
+var replyTo=0;
+
+var userInfo;
+
+//--------------------------------------------------------------------
+// 檢查是否已登入
+// 已登入則自動導向至 home.html
+//--------------------------------------------------------------------
+function checkLogin(){
+    AJAXGet("checkLogin", checkLoginHandler);
+}
+
+function checkLoginHandler(xhttp){
+     var data = JSON.parse(xhttp.responseText);
+     
+     if (data.success == "ok"){
+         userInfo = data.userInfo;
+         //loadUserInfo();
+     }
+     else {
+         alert("尚未登入!!!");
+         window.location.href = "index.html";   // 將網頁重導向至 index.html
+     }
+}
+
+//--------------------------------------------------------------------
+// 載入使用者資料
+//--------------------------------------------------------------------
+function loadUserInfo(){
+
+    if(userInfo) document.getElementById('uname').innerHTML = userInfo.uname;
+}
+
+
+//--------------------------------------------------------
+// 20170121 tkli
+// 載入該筆 文章的資料
+//--------------------------------------------------------
+function loadPostContent(){   //將 PO 文的內容載入進來，並顯示
+    var queryString = window.location.search;
+    AJAXGet("getOnePost" + queryString, loadPostContentHandler);  // queryString ==> ?pno=XXX
+}   
+
+function loadPostContentHandler(xhttp) {
+    //console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        var postListContainer = document.getElementById("postList");
+        document.getElementById("author").innerHTML = doc.data[0].username;
+        document.getElementById("time").innerHTML = doc.data[0].time;
+        document.getElementById("title").value = doc.data[0].title;
+        document.getElementById("postContent").value = doc.data[0].content;
+        //console.log( doc.data[0].content);
+        
+        replyTo =  doc.data[0].pno;
+        
+        loadReplyList(doc.data[0].pno);    // 等 本文載入後，再呼叫 載入 回文的部份
+    }
+}
+
+//--------------------------------------------------------
+// 回文
+//--------------------------------------------------------
+function sendReplyHandler(xhttp) {
+    //console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        alert("回覆成功");
+        //window.location.href = "default.html";  // 將網頁重導向至 login.html
+        //改成重整 回覆
+        //reflashReply();
+        
+        loadReplyList(replyTo);    // 等 本文載入後，再呼叫 載入 回文的部份
+        
+    }else {
+        alert("回覆失敗");        
+        
+        document.getElementById("title").value ="";
+        document.getElementById("postCntent").value ="";
+        document.getElementById("title").focus();
+    }
+}
+
+function sendReply(){
+    
+    var title = document.getElementById("title").value;
+    var replyContent = document.getElementById("replyContent").value;
+
+    var url = "doReplyArticle" ;
+    var postData = "replyTo=" + replyTo + "&content=" + replyContent;
+    
+    AJAXPost(url, postData, sendReplyHandler);
+
+} 
+
+
+//--------------------------------------------------------
+// 載入回文內容
+//--------------------------------------------------------
+function handlerReplyList(xhttp) {
+    //console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok" && doc.data){
+        var replyList = "";
+        for (var i=0; i<doc.data.length; i++){
+            replyList += "作者：" + doc.data[i].username + "<br/>";
+            replyList += "回覆時間：" + doc.data[i].time + "<br/>";
+            replyList += "回覆內容：" + doc.data[i].content +"<br/><br/>\n";
+            
+        }
+        
+        document.getElementById("replyList").innerHTML = replyList;
+    }
+}
+
+function loadReplyList(replyTo){
+    var url = "getReplyList?replyTo=" + replyTo;
+    AJAXGet(url, handlerReplyList);
+}   
+
+//--------------------------------------------------------------------
+// 初始化頁面
+//--------------------------------------------------------------------
+function initPage(){
+    checkLogin();
+    htmlLoader();
+    loadPostContent();
+}
+
+</script>
+
+</head>
+
+<body onload = "initPage();">
+
+<header load-html='header.html'></header>
+
+<section load-html='menu.html'></section>
+
+<section id='content' style='width:924px;position:relative;left:50%;margin-left:-462px;'>
+    <br/><br/><br/><br/>
+    
+    <!--底下的 UI 隨便做一做了啦....呵呵-->
+    <table>
+        <tr>
+            <td>作者：</td>
+            <td><span id="author"></span></td>
+        </tr>
+        <tr>
+            <td>發文時間：</td>
+            <td><span id="time"></span></td>
+        </tr>
+        <tr>
+            <td>標題：</td>
+            <td><input name='title' id='title' style="width:824px" readonly /></td>
+        </tr>
+        <tr>
+        <tr>
+            <td style="vertical-align: text-top;">內文：</td>
+            <td><textarea name="postContent"  id="postContent" style="left:0px;right:0px; height:400px; width:824px; vertical-align: text-top;" readonly ></textarea></td>
+        </tr>
+        <tr>
+            <td style="vertical-align: text-top;">回覆：</td>
+            <td>
+                <button onclick="sendReply()" style="position:absolute;right:0px">確認回覆</button> 
+                <textarea name="replyContent"  id="replyContent" style="left:0px;right:0px; height:200px; width:824px; vertical-align: text-top;" ></textarea>
+            </td>
+            
+        </tr>
+        
+    </table>
+
+    <hr/>
+    
+    <h2>回覆內容：</h2>
+    <div id="replyList"></div>
+    
+    <!--<p><button onclick="sendData()">送出</button> </p>-->
+    <!--</form>-->
+    
+    <br/><br/><br/><br/>
+
+</section>
+
+
+<footer load-html='footer.html'></footer>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>雲端範例系統</title>
+
+<script type="text/javascript" src="js/AJAX.js"></script>
+<script type="text/javascript" src="js/htmlLoader.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+
+<script>
+var replyTo=0;
+
+var userInfo;
+
+//--------------------------------------------------------------------
+// 檢查是否已登入
+// 已登入則自動導向至 home.html
+//--------------------------------------------------------------------
+function checkLogin(){
+    AJAXGet("checkLogin", checkLoginHandler);
+}
+
+function checkLoginHandler(xhttp){
+     var data = JSON.parse(xhttp.responseText);
+     
+     if (data.success == "ok"){
+         userInfo = data.userInfo;
+         //loadUserInfo();
+     }
+     else {
+         alert("尚未登入!!!");
+         window.location.href = "index.html";   // 將網頁重導向至 index.html
+     }
+}
+
+
+//--------------------------------------------------------------------
+// 更改密碼
+//--------------------------------------------------------------------
+function handler(xhttp) {
+    console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        alert("修改成功");
+        window.location.href = "main.html";  
+    }else {
+        alert("修改失敗");        
+        
+        document.getElementById("new_pass").value ="";
+        document.getElementById("re_upass").value ="";
+        
+        document.getElementById("new_pass").focus();
+    }
+}
+
+function sendData(){
+    
+    if ( document.getElementById("new_pass").value !== document.getElementById("re_upass").value){
+        alert("密碼有問題!!!");        
+        document.getElementById("new_pass").value ="";
+        document.getElementById("re_upass").value ="";
+        document.getElementById("new_pass").focus();
+        
+        return;
+    }
+    
+    var url = "doChangePass" ;
+    var new_pass = document.getElementById("new_pass").value;
+    var postData = "new_pass=" + new_pass;
+    
+    AJAXPost(url, postData, handler);
+  
+}   
+//--------------------------------------------------------------------
+// 初始化頁面
+//--------------------------------------------------------------------
+function initPage(){
+    checkLogin();
+    htmlLoader();
+    document.getElementById("new_pass").focus();
+}
+
+</script>
+
+</head>
+
+<body onload = "initPage();">
+
+<header load-html='header.html'></header>
+
+<section load-html='menu.html'></section>
+
+<section id='content' style='width:924px;position:relative;left:50%;margin-left:-462px;'>
+    <br/><br/><br/><br/>
+
+    <h1>修改密碼</h1>
+        
+    <!--<form action="20160331_loginverify.php" method="post"></form>-->
+    
+    <!--userid | pass | username  | age  | phone  -->
+    
+    <table>
+        <tr>
+            <td>新密碼：</td>
+            <td><input type="password" name='new_pass' id="new_pass"></input></td>
+        </tr>
+        <tr>
+            <td>重覆密碼：</td>
+            <td><input type="password" name='re_upass' id="re_upass"></input></td>
+        </tr>
+    </table>
+    
+        <p><button onclick="sendData()">確認變更</button> </p>
+    <!--</form>-->
+
+    <br/><br/><br/><br/>
+
+</section>
+
+
+<footer load-html='footer.html'></footer>
+
+</body>
+</html>

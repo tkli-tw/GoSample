@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>雲端範例系統</title>
+
+<style>
+.postListStyle:hover{
+    background-color:#ffe0d0;
+}
+.postListStyle{
+    font-family:微軟正黑體;
+    color:#aaaaff;
+}
+
+</style>
+
+<script type="text/javascript" src="js/AJAX.js"></script>
+<script type="text/javascript" src="js/htmlLoader.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+
+<script>
+var userInfo;
+
+//--------------------------------------------------------------------
+// 檢查是否已登入
+// 已登入則自動導向至 home.html
+//--------------------------------------------------------------------
+function checkLogin(){
+    AJAXGet("checkLogin", checkLoginHandler);
+}
+
+function checkLoginHandler(xhttp){
+     var data = JSON.parse(xhttp.responseText);
+     
+     if (data.success == "ok"){
+         userInfo = data.userInfo;
+         loadUserInfo();
+     }
+     else {
+         alert("尚未登入!!!");
+         window.location.href = "index.html";   // 將網頁重導向至 index.html
+     }
+}
+
+//--------------------------------------------------------------------
+// 載入使用者資料
+//--------------------------------------------------------------------
+function loadUserInfo(){
+
+    if(userInfo) document.getElementById('uname').innerHTML = userInfo.uname;
+}
+
+
+//--------------------------------------------------------
+// 載入文章列表
+//--------------------------------------------------------
+function loadPostListHandler(xhttp) {
+    //console.log(xhttp.responseText);
+    var data = JSON.parse(xhttp.responseText);
+    
+    if (data.result == "ok"){
+        var postListContainer = document.getElementById("postList");
+        for (var i=0; i<data.data.length; i++){
+            
+            //20170121 tkli
+            //條列式的資料 及 表格式的資料 最好都用 li 元件去呈現
+            //原因是，
+            //1. 使用 table 呈現時，就被 table 限制住了，未來若是呈現方式想改成非表格式 時，就變得很麻煩，
+            //2. 目前 html5 裡，對於 li 的顯示方式 支援表格式的呈現方式，且 有更多的變化性，
+            //3. li 元件的控制 雖然較為複雜，但 更為方便，多變化。
+            var onePost = document.createElement("li");
+            
+            onePost.innerHTML = '<a href="showOnePost.html?pno='+ data.data[i].pno +'">'+ data.data[i].title + '</a>' ;
+            
+            //20170121 tkli
+            //透過 className 的設定，可以很方便的去設定一佪動態產生的 html 元件的顯示格，
+            //而且 不會把程式碼搞得很複雜，
+            //這算是一個不錯的 程式風格(我個人覺得啦)。
+            onePost.className = "postListStyle";
+            
+            postListContainer.appendChild(onePost);
+        }
+    } else {
+        alert("資料讀取錯誤!!!");        
+        window.location.href = "index.html";  
+    }
+}
+
+function loadPostList(){
+    AJAXGet("getPostList", loadPostListHandler);
+}   
+
+//--------------------------------------------------------------------
+// 初始化頁面
+//--------------------------------------------------------------------
+function initPage(){
+    checkLogin();
+    htmlLoader();
+    loadPostList();
+}
+</script>
+
+</head>
+  
+<body onload = "initPage();">
+
+<header load-html='header.html'></header>
+
+<section load-html='menu.html'></section>
+
+<section id='content' style='width:924px;position:relative;left:50%;margin-left:-462px;'>
+    
+    <br/><br/><br/>
+    <!--p class="style3">Welcome to Programming Proficiency Test</p-->
+    <p >
+    
+    <span id='uname'></span> 您好，歡迎使用雲端範例系統。<br />
+    
+    <hr/>
+
+    <ul id="postList" style="margin:25px">
+    </ul>
+
+    <br/><br/><br/><br/>
+    
+</section>
+
+
+<footer load-html='footer.html'></footer>
+    
+</body>  
+</html>

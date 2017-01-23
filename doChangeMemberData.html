@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>雲端範例系統</title>
+
+<script type="text/javascript" src="js/AJAX.js"></script>
+<script type="text/javascript" src="js/htmlLoader.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
+
+<script>
+var replyTo=0;
+
+var userInfo;
+
+//--------------------------------------------------------------------
+// 檢查是否已登入
+// 已登入則自動導向至 home.html
+//--------------------------------------------------------------------
+function checkLogin(){
+    AJAXGet("checkLogin", checkLoginHandler);
+}
+
+function checkLoginHandler(xhttp){
+     var data = JSON.parse(xhttp.responseText);
+     
+     if (data.success == "ok"){
+         userInfo = data.userInfo;
+         //loadUserInfo();
+     }
+     else {
+         alert("尚未登入!!!");
+         window.location.href = "index.html";   // 將網頁重導向至 index.html
+     }
+}
+
+//--------------------------------------------------------
+// 20170122 tkli
+// 載入 使用者的資料，以方便修改
+//--------------------------------------------------------
+function loadMemberData(){   //將 PO 文的內容載入進來，並顯示
+    var queryString = window.location.search;
+    AJAXGet("getMemberData", loadMemberDataHandler);  // queryString ==> ?pno=XXX
+}   
+
+function loadMemberDataHandler(xhttp) {
+    //console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        document.getElementById("uname").value = doc.data[0].username;      //保留 舊值，省得使用者再 key 一次
+        document.getElementById("age").value =doc.data[0].age;
+        document.getElementById("phone").value =doc.data[0].phone;
+    }
+}
+
+//--------------------------------------------------------------------
+// 更改 使用者資料
+//--------------------------------------------------------------------
+function handler(xhttp) {
+    console.log(xhttp.responseText);
+    var doc = JSON.parse(xhttp.responseText);
+    
+    if (doc.result == "ok"){
+        alert("修改成功");
+        window.location.href = "main.html";  
+    }else {
+        alert("修改失敗");        
+        
+        // document.getElementById("uname").value ="";      //保留 舊值，省得使用者再 key 一次
+        // document.getElementById("age").value ="";
+        // document.getElementById("phone").value ="";
+        
+        document.getElementById("uname").focus();
+    }
+}
+
+function sendData(){
+    
+    var url = "doChangeMemberData" ;
+    var uname = encodeURI(document.getElementById("uname").value);
+    var age = encodeURI(document.getElementById("age").value);
+    var phone = encodeURI(document.getElementById("phone").value);
+    var postData = "uname=" + uname + "&age="+ age +"&phone="+phone;
+    
+    AJAXPost(url, postData, handler);
+  
+}   
+//--------------------------------------------------------------------
+// 初始化頁面
+//--------------------------------------------------------------------
+function initPage(){
+    checkLogin();
+    htmlLoader();
+    loadMemberData();
+    document.getElementById("uname").focus();
+}
+
+</script>
+
+</head>
+
+<body onload = "initPage();">
+
+<header load-html='header.html'></header>
+
+<section load-html='menu.html'></section>
+
+<section id='content' style='width:924px;position:relative;left:50%;margin-left:-462px;'>
+    <br/><br/><br/><br/>
+
+    <h1>修改會員資料</h1>
+    
+    <table>
+        <tr>
+            <td>姓名：</td>
+            <td><input name='uname' id='uname'></input></td>
+        </tr>
+        <tr>
+            <td>年齡：</td>
+            <td><input name='age' id='age'></input></td>
+        </tr>
+        <tr>
+            <td>電話：</td>
+            <td><input name='phone' id='phone'></input></td>
+        </tr>
+    </table>
+
+    <p><button onclick="sendData()">確認變更</button> </p>
+
+    <br/><br/><br/><br/>
+
+</section>
+
+
+<footer load-html='footer.html'></footer>
+
+</body>
+</html>

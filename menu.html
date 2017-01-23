@@ -1,0 +1,112 @@
+      <!--table align="center" cellpadding="0" cellspacing="0" style="border:0;font-size:12pt;">
+        <tr>
+          <td style="background-color:#33ff33;border-color:#666 #666 #000 #000;border-width:1px 2px 2px 1px;border-style:solid">&nbsp;&nbsp; 你好&nbsp;&nbsp;</td>
+          	<td><a href="home.php" class="nav_a"><div class="nav">首頁</div></a></td>
+          	<td><a href="registration.php" class="nav_a"><div class="nav">報名</div></a></td>
+          	<td><a href="reg_inquiry.php" class="nav_a"><div class="nav">查詢</div></a></td>
+          	<td><a href="download.php" class="nav_a"><div class="nav">考題下載</div></a></td>
+          <td><a href="logout.php" class="nav_a"><div class="nav">登出</div></a></td>	
+		  <td><a href="admin_management.php" class="nav_a"><div class="nav" class="nav_a">管理員</div></td>
+        </tr>
+      </table-->
+
+<style>
+
+/*********************************************************************************/
+/* Menu                                                                          */
+/*********************************************************************************/
+/*
+參考網址：
+http://line25.com/tutorials/how-to-create-a-pure-css-dropdown-menu
+*/
+nav {
+	background: #e8e8e8;
+	text-align: center;
+}
+
+nav ul ul {
+	display: none;
+}
+
+nav ul li:hover > ul {
+	display: block;
+}
+
+
+nav ul {
+	margin: 0;
+	padding: 0px 0px 0px 0px;
+	list-style: none;
+	line-height: normal;
+	text-align: center;
+	background: #e8e8e8;
+
+	position: relative;
+	display: inline-table;
+
+}
+nav ul:after {
+	content: ""; clear: both; display: block;
+}
+
+nav ul li {
+	float: left;
+	font-size:16px;
+}
+		nav ul li:hover {
+			background: #01A9DC;
+		}
+			nav ul li:hover a {
+				color: #fff;
+			}
+		
+		nav ul li a {
+			display: block;
+			padding: 0em 2em;
+			line-height: 36px;
+			letter-spacing: 1px;
+			text-decoration: none;
+			text-transform: uppercase;
+			font-size: 1em;
+			font-weight: 700;
+			color: #838383;
+
+		}
+			
+		
+	nav ul ul {
+		background: #5f6975; border-radius: 0px; padding: 0;
+		position: absolute; top: 100%;
+	}
+		nav ul ul li {
+			float: none; 
+			border-top: 1px solid #6b727c;
+			border-bottom: 1px solid #575f6a; position: relative;
+		}
+			nav ul ul li a {
+				line-height: 50px;
+				color: #757575; text-decoration: none;
+			}	
+				nav ul ul li a:hover {
+					background: #4b545f;
+				}
+		
+	nav ul ul ul {
+		position: absolute; left: 100%; top:0;
+	}	
+  
+</style>
+
+      
+<div id="menu" style="position:absolute;width: 924px;left:50%;margin-left:-462px;top:170px;z-index:1000">
+	<nav id="menuNav" >
+		<ul>
+			<li ><a href="main.html">首頁</a></li>
+			<li ><a href="doPostArticle.html">發文</a></li>
+			<li ><a href="dataQuery.html">聊天</a>
+			<li ><a href="doChangePass.html">修改密碼</a>
+			<li ><a href="doChangeMemberData.html">修改會員資料</a>
+			<li ><a href="javascript:logout();">登出</a>
+		</ul>
+	</nav>
+</div>
